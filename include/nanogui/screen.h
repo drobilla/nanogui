@@ -1,5 +1,5 @@
 /*
-    nanogui/screen.h -- Top-level widget and interface between NanoGUI and GLFW
+    nanogui/screen.h -- Top-level widget and interface between NanoGUI and Pugl
 
     A significant redesign of this code was contributed by Christian Schueller.
 
@@ -15,13 +15,14 @@
 #pragma once
 
 #include <nanogui/widget.h>
+#include <pugl/pugl.h>
 
 NAMESPACE_BEGIN(nanogui)
 
 /**
  * \class Screen screen.h nanogui/screen.h
  *
- * \brief Represents a display surface (i.e. a full-screen or windowed GLFW window)
+ * \brief Represents a display surface
  * and forms the root element of a hierarchy of nanogui widgets.
  */
 class NANOGUI_EXPORT Screen : public Widget {
@@ -132,14 +133,17 @@ public:
     /// Return the last observed mouse position value
     Vector2i mousePos() const { return mMousePos; }
 
-    /// Return a pointer to the underlying GLFW window data structure
-    GLFWwindow *glfwWindow() { return mGLFWWindow; }
+    /// Return a pointer to the underlying PuglView
+    PuglView *puglView() { return mPuglView; }
 
     /// Return a pointer to the underlying nanoVG draw context
     NVGcontext *nvgContext() { return mNVGContext; }
 
-    void setShutdownGLFWOnDestruct(bool v) { mShutdownGLFWOnDestruct = v; }
-    bool shutdownGLFWOnDestruct() { return mShutdownGLFWOnDestruct; }
+    void setCloseViewOnDestruct(bool v) { mCloseViewOnDestruct = v; }
+    bool closeViewOnDestruct() { return mCloseViewOnDestruct; }
+
+    void setShouldClose(bool v) { mShouldClose = v; }
+    bool shouldClose() { return mShouldClose; }
 
     using Widget::performLayout;
 
@@ -149,24 +153,24 @@ public:
     }
 
 public:
-    /********* API for applications which manage GLFW themselves *********/
+    /********* API for applications which manage Pugl themselves *********/
 
     /**
      * \brief Default constructor
      *
      * Performs no initialization at all. Use this if the application is
-     * responsible for setting up GLFW, OpenGL, etc.
+     * responsible for setting up Pugl itself.
      *
      * In this case, override \ref Screen and call \ref initalize() with a
-     * pointer to an existing \c GLFWwindow instance
+     * pointer to an existing \c PuglView instance
      *
-     * You will also be responsible in this case to deliver GLFW callbacks
+     * You will also be responsible in this case to deliver Pugl callbacks
      * to the appropriate callback event handlers below
      */
     Screen();
 
     /// Initialize the \ref Screen
-    void initialize(GLFWwindow *window, bool shutdownGLFWOnDestruct);
+    void initialize(PuglView *view, bool closeViewOnDestruct);
 
     /* Event handlers */
     bool cursorPosCallbackEvent(double x, double y);
@@ -185,9 +189,9 @@ public:
     void drawWidgets();
 
 protected:
-    GLFWwindow *mGLFWWindow;
+    PuglView *mPuglView;
     NVGcontext *mNVGContext;
-    GLFWcursor *mCursors[(int) Cursor::CursorCount];
+    /* GLFWcursor *mCursors[(int) Cursor::CursorCount]; */
     Cursor mCursor;
     std::vector<Widget *> mFocusPath;
     Vector2i mFBSize;
@@ -200,11 +204,10 @@ protected:
     bool mProcessEvents;
     Color mBackground;
     std::string mCaption;
-    bool mShutdownGLFWOnDestruct;
+    bool mCloseViewOnDestruct;
     bool mFullscreen;
+    bool mShouldClose;
     std::function<void(Vector2i)> mResizeCallback;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

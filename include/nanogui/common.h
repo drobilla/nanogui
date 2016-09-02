@@ -26,9 +26,12 @@
 #endif
 
 #include <Eigen/Core>
+#include <pugl/pugl.h>
 #include <stdint.h>
 #include <array>
 #include <vector>
+
+#include <sys/time.h>
 
 /* Set to 1 to draw boxes around widgets */
 //#define NANOGUI_SHOW_WIDGET_BOUNDS 1
@@ -102,20 +105,18 @@
 #if !defined(DOXYGEN_SHOULD_SKIP_THIS)
 
 struct NVGcontext { /* Opaque handle type, never de-referenced within NanoGUI */ };
-struct GLFWwindow { /* Opaque handle type, never de-referenced within NanoGUI */ };
 
 struct NVGcolor;
 struct NVGglyphPosition;
-struct GLFWcursor;
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 // Define command key for windows/mac/linux
 #if defined(__APPLE__) || defined(DOXYGEN_DOCUMENTATION_BUILD)
-    /// If on OSX, maps to ``GLFW_MOD_SUPER``.  Otherwise, maps to ``GLFW_MOD_CONTROL``.
-    #define SYSTEM_COMMAND_MOD GLFW_MOD_SUPER
+    /// If on OSX, maps to ``PUGL_MOD_SUPER``.  Otherwise, maps to ``PUGL_MOD_CTRL``.
+    #define SYSTEM_COMMAND_MOD PUGL_MOD_SUPER
 #else
-    #define SYSTEM_COMMAND_MOD GLFW_MOD_CONTROL
+    #define SYSTEM_COMMAND_MOD PUGL_MOD_CTRL
 #endif
 
 NAMESPACE_BEGIN(nanogui)
@@ -452,7 +453,7 @@ extern NANOGUI_EXPORT void shutdown();
  *     wait for the termination of the main loop and then swap the two thread
  *     environments back into their initial configuration.
  */
-extern NANOGUI_EXPORT void mainloop(int refresh = 50);
+extern NANOGUI_EXPORT void mainloop(Screen* screen, int refresh = 50);
 
 /// Request the application main loop to terminate (e.g. if you detached mainloop).
 extern NANOGUI_EXPORT void leave();
@@ -526,5 +527,11 @@ extern NANOGUI_EXPORT std::vector<std::pair<int, std::string>>
 
 /// Helper function used by nvgImageIcon
 extern NANOGUI_EXPORT int __nanogui_get_image(NVGcontext *ctx, const std::string &name, uint8_t *data, uint32_t size);
+
+inline double getTime() {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (double) tv.tv_sec  + (double) tv.tv_usec / 1000000.0;
+}
 
 NAMESPACE_END(nanogui)

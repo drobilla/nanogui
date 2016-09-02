@@ -471,7 +471,7 @@ int main(int /* argc */, char ** /* argv */) {
         screen->performLayout();
         screen->setVisible(true);
 
-        nanogui::mainloop();
+        nanogui::mainloop(screen);
     }
 
     nanogui::shutdown();

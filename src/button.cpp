@@ -52,7 +52,7 @@ bool Button::mouseButtonEvent(const Vector2i &p, int button, bool down, int modi
        button causes the parent window to be destructed */
     ref<Button> self = this;
 
-    if (button == GLFW_MOUSE_BUTTON_1 && mEnabled) {
+    if (button == 1 && mEnabled) {
         bool pushedBackup = mPushed;
         if (down) {
             if (mFlags & RadioButton) {

@@ -568,7 +568,7 @@ public:
     virtual bool keyboardEvent(int key, int scancode, int action, int modifiers) {
         if (Screen::keyboardEvent(key, scancode, action, modifiers))
             return true;
-        if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        if (key == PUGL_CHAR_ESCAPE && action == 1) {
             setVisible(false);
             return true;
         }
@@ -577,7 +577,7 @@ public:
 
     virtual void draw(NVGcontext *ctx) {
         /* Animate the scrollbar */
-        mProgress->setValue(std::fmod((float) glfwGetTime() / 10, 1.0f));
+	    mProgress->setValue(std::fmod((float) nanogui::getTime() / 10, 1.0f));
 
         /* Draw the user interface */
         Screen::draw(ctx);
@@ -591,7 +591,7 @@ public:
 
         Matrix4f mvp;
         mvp.setIdentity();
-        mvp.topLeftCorner<3,3>() = Matrix3f(Eigen::AngleAxisf((float) glfwGetTime(),  Vector3f::UnitZ())) * 0.25f;
+        mvp.topLeftCorner<3,3>() = Matrix3f(Eigen::AngleAxisf((float) getTime(),  Vector3f::UnitZ())) * 0.25f;
 
         mvp.row(0) *= (float) mSize.y() / (float) mSize.x();
 
@@ -617,7 +617,8 @@ int main(int /* argc */, char ** /* argv */) {
             nanogui::ref<ExampleApplication> app = new ExampleApplication();
             app->drawAll();
             app->setVisible(true);
-            nanogui::mainloop();
+            nanogui::mainloop(app);
+            delete app;
         }
 
         nanogui::shutdown();

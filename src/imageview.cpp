@@ -162,7 +162,7 @@ void ImageView::zoom(int amount, const Vector2f& focusPosition) {
 }
 
 bool ImageView::mouseDragEvent(const Vector2i& p, const Vector2i& rel, int button, int /*modifiers*/) {
-    if ((button & (1 << GLFW_MOUSE_BUTTON_LEFT)) != 0 && !mFixedOffset) {
+    if ((button & (1 << 1)) != 0 && !mFixedOffset) {
         setImageCoordinateAt((p + rel).cast<float>(), imageCoordinateAt(p.cast<float>()));
         return true;
     }
@@ -194,36 +194,36 @@ bool ImageView::scrollEvent(const Vector2i& p, const Vector2f& rel) {
 bool ImageView::keyboardEvent(int key, int /*scancode*/, int action, int modifiers) {
     if (action) {
         switch (key) {
-        case GLFW_KEY_LEFT:
+        case PUGL_KEY_LEFT:
             if (!mFixedOffset) {
-                if (GLFW_MOD_CONTROL & modifiers)
+                if (PUGL_MOD_CTRL & modifiers)
                     moveOffset(Vector2f(30, 0));
                 else
                     moveOffset(Vector2f(10, 0));
                 return true;
             }
             break;
-        case GLFW_KEY_RIGHT:
+        case PUGL_KEY_RIGHT:
             if (!mFixedOffset) {
-                if (GLFW_MOD_CONTROL & modifiers)
+                if (PUGL_MOD_CTRL & modifiers)
                     moveOffset(Vector2f(-30, 0));
                 else
                     moveOffset(Vector2f(-10, 0));
                 return true;
             }
             break;
-        case GLFW_KEY_DOWN:
+        case PUGL_KEY_DOWN:
             if (!mFixedOffset) {
-                if (GLFW_MOD_CONTROL & modifiers)
+                if (PUGL_MOD_CTRL & modifiers)
                     moveOffset(Vector2f(0, -30));
                 else
                     moveOffset(Vector2f(0, -10));
                 return true;
             }
             break;
-        case GLFW_KEY_UP:
+        case PUGL_KEY_UP:
             if (!mFixedOffset) {
-                if (GLFW_MOD_CONTROL & modifiers)
+                if (PUGL_MOD_CTRL & modifiers)
                     moveOffset(Vector2f(0, 30));
                 else
                     moveOffset(Vector2f(0, 10));

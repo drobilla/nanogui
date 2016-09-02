@@ -319,7 +319,7 @@ Vector2i TabHeader::preferredSize(NVGcontext* ctx) const {
 
 bool TabHeader::mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers) {
     Widget::mouseButtonEvent(p, button, down, modifiers);
-    if (button == GLFW_MOUSE_BUTTON_1 && down) {
+    if (button == 1 && down) {
         switch (locateClick(p)) {
         case ClickLocation::LeftControls:
             onArrowLeft();

@@ -79,7 +79,8 @@ int main(int /* argc */, char ** /* argv */) {
         screen->performLayout();
         window->center();
 
-        nanogui::mainloop();
+        nanogui::mainloop(screen);
+        delete screen;
     }
 
     nanogui::shutdown();

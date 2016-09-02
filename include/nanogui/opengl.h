@@ -1,5 +1,5 @@
 /*
-    nanogui/opengl.h -- Pulls in OpenGL, GLAD (if needed), GLFW, and
+    nanogui/opengl.h -- Pulls in OpenGL, GLAD (if needed), Pugl, and
     NanoVG header files
 
     NanoGUI was developed by Wenzel Jakob <wenzel.jakob@epfl.ch>.
@@ -23,15 +23,14 @@
 
     #include <glad/glad.h>
 #else
-    #if defined(__APPLE__)
-        #define GLFW_INCLUDE_GLCOREARB
-    #else
+    #if !defined(__APPLE__)
         #define GL_GLEXT_PROTOTYPES
     #endif
 #endif
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-#include <GLFW/glfw3.h>
+#include <pugl/pugl.h>
+#include <pugl/gl.h>
 #include <nanovg.h>
 
 // Special treatment of linux Nvidia opengl headers
