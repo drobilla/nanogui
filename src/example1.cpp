@@ -529,7 +529,7 @@ public:
             "a_simple_shader",
 
             /* Vertex shader */
-            "#version 330\n"
+            "#version 130\n"
             "uniform mat4 modelViewProj;\n"
             "in vec3 position;\n"
             "void main() {\n"
@@ -537,7 +537,7 @@ public:
             "}",
 
             /* Fragment shader */
-            "#version 330\n"
+            "#version 130\n"
             "out vec4 color;\n"
             "uniform float intensity;\n"
             "void main() {\n"

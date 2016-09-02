@@ -41,7 +41,7 @@ namespace {
     }
 
     constexpr char const *const defaultImageViewVertexShader =
-        R"(#version 330
+        R"(#version 130
         uniform vec2 scaleFactor;
         uniform vec2 position;
         in vec2 vertex;
@@ -56,7 +56,7 @@ namespace {
         })";
 
     constexpr char const *const defaultImageViewFragmentShader =
-        R"(#version 330
+        R"(#version 130
         uniform sampler2D image;
         out vec4 color;
         in vec2 uv;
