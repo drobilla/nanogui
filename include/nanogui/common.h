@@ -25,13 +25,16 @@
 #  pragma warning(disable : 4127) // warning C4127: conditional expression is constant
 #endif
 
-#include <Eigen/Core>
 #include <pugl/pugl.h>
 #include <stdint.h>
 #include <array>
+#include <cmath>
 #include <vector>
 
 #include <sys/time.h>
+
+#include <nanogui/vector.h>
+#include <nanogui/matrix.h>
 
 /* Set to 1 to draw boxes around widgets */
 //#define NANOGUI_SHOW_WIDGET_BOUNDS 1
@@ -132,33 +135,30 @@ enum class Cursor {
     CursorCount ///< Not a cursor --- should always be last: enables a loop over the cursor types.
 };
 
-/* Import some common Eigen types */
-/// Type alias to allow ``Eigen::Vector2f`` to be used as ``nanogui::Vector2f``.
-using Vector2f = Eigen::Vector2f;
-/// Type alias to allow ``Eigen::Vector3f`` to be used as ``nanogui::Vector3f``.
-using Vector3f = Eigen::Vector3f;
-/// Type alias to allow ``Eigen::Vector4f`` to be used as ``nanogui::Vector4f``.
-using Vector4f = Eigen::Vector4f;
-/// Type alias to allow ``Eigen::Vector2i`` to be used as ``nanogui::Vector2i``.
-using Vector2i = Eigen::Vector2i;
-/// Type alias to allow ``Eigen::Vector3i`` to be used as ``nanogui::Vector3i``.
-using Vector3i = Eigen::Vector3i;
-/// Type alias to allow ``Eigen::Vector4i`` to be used as ``nanogui::Vector4i``.
-using Vector4i = Eigen::Vector4i;
-/// Type alias to allow ``Eigen::Matrix3f`` to be used as ``nanogui::Matrix3f``.
-using Matrix3f = Eigen::Matrix3f;
-/// Type alias to allow ``Eigen::Matrix4f`` to be used as ``nanogui::Matrix4f``.
-using Matrix4f = Eigen::Matrix4f;
-/// Type alias to allow ``Eigen::VectorXf`` to be used as ``nanogui::VectorXf``.
-using VectorXf = Eigen::VectorXf;
-/// Type alias to allow ``Eigen::MatrixXf`` to be used as ``nanogui::MatrixXf``.
-using MatrixXf = Eigen::MatrixXf;
+using Vector2f = Vector<float, 2>;
+using Vector3f = Vector<float, 3>;
+using Vector4f = Vector<float, 4>;
+using Vector2i = Vector<int, 2>;
+using Vector3i = Vector<int, 3>;
+using Vector4i = Vector<int, 4>;
+using Matrix2f = Matrix<float, 2, 2>;
+using Matrix3f = Matrix<float, 3, 3>;
+using Matrix4f = Matrix<float, 4, 4>;
 
-/**
- * Convenience typedef for things like index buffers.  You would use it the same
- * as ``Eigen::MatrixXf``, only it is storing ``uint32_t`` instead of ``float``.
- */
-using MatrixXu = Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic>;
+template<typename T>
+class Rotation2D {
+public:
+    Rotation2D(T angle) : mAngle(angle) {}
+
+    Matrix<T, 2, 2> matrix() const {
+        const T sinA = std::sin(mAngle);
+        const T cosA = std::cos(mAngle);
+        return Matrix<T, 2, 2>(cosA, -sinA, sinA, cosA);
+    }
+
+private:
+    T mAngle;
+};
 
 /**
  * \class Color common.h nanogui/common.h
@@ -189,8 +189,8 @@ using MatrixXu = Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic>;
  * You can and should still use the various convenience methods such as ``any()``,
  * ``all()``, ``head<index>()``, etc provided by Eigen.
  */
-class Color : public Eigen::Vector4f {
-    typedef Eigen::Vector4f Base;
+class Color : public Vector4f {
+    typedef Vector4f Base;
 public:
     /// Default constructor: represents black (``r, g, b, a = 0``)
     Color() : Color(0, 0, 0, 0) {}
@@ -201,7 +201,7 @@ public:
      * \param color
      * The four dimensional float vector being copied.
      */
-    Color(const Eigen::Vector4f &color) : Eigen::Vector4f(color) { }
+    Color(const Vector4f &color) : Vector4f(color) { }
 
     /**
      * Copies (x, y, z) from the input vector, and uses the value specified by
@@ -213,7 +213,7 @@ public:
      * \param alpha
      * The value to set this object's alpha component to.
      */
-    Color(const Eigen::Vector3f &color, float alpha)
+    Color(const Vector3f &color, float alpha)
         : Color(color(0), color(1), color(2), alpha) { }
 
     /**
@@ -228,7 +228,7 @@ public:
      * \param alpha
      * The value to set this object's alpha component to, will be divided by ``255.0``.
      */
-    Color(const Eigen::Vector3i &color, int alpha)
+    Color(const Vector3i &color, int alpha)
         : Color(color.cast<float>() / 255.f, alpha / 255.f) { }
 
     /**
@@ -238,7 +238,7 @@ public:
      * \param color
      * The three dimensional float vector being copied.
      */
-    Color(const Eigen::Vector3f &color) : Color(color, 1.0f) {}
+    Color(const Vector3f &color) : Color(color, 1.0f) {}
 
     /**
      * Copies (x, y, z) from the input vector, casting to floats and dividing by
@@ -247,7 +247,7 @@ public:
      * \param color
      * The three dimensional integer vector being copied, will be divided by ``255.0``.
      */
-    Color(const Eigen::Vector3i &color)
+    Color(const Vector3i &color)
         : Color((Vector3f)(color.cast<float>() / 255.f)) { }
 
     /**
@@ -257,7 +257,7 @@ public:
      * \param color
      * The three dimensional integer vector being copied, will be divided by ``255.0``.
      */
-    Color(const Eigen::Vector4i &color)
+    Color(const Vector4i &color)
         : Color((Vector4f)(color.cast<float>() / 255.f)) { }
 
     /**
@@ -320,16 +320,6 @@ public:
      */
     Color(int r, int g, int b, int a) : Color(Vector4i(r, g, b, a)) { }
 
-    /// Construct a color vector from MatrixBase (needed to play nice with Eigen)
-    template <typename Derived> Color(const Eigen::MatrixBase<Derived>& p)
-        : Base(p) { }
-
-    /// Assign a color vector from MatrixBase (needed to play nice with Eigen)
-    template <typename Derived> Color &operator=(const Eigen::MatrixBase<Derived>& p) {
-        this->Base::operator=(p);
-        return *this;
-    }
-
     /// Return a reference to the red channel
     float &r() { return x(); }
     /// Return a reference to the red channel (const version)
@@ -356,8 +346,6 @@ public:
 
     /// Allows for conversion between this Color and NanoVG's representation.
     inline operator const NVGcolor &() const;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 // skip the forward declarations for the docs
@@ -529,9 +517,9 @@ extern NANOGUI_EXPORT std::vector<std::pair<int, std::string>>
 extern NANOGUI_EXPORT int __nanogui_get_image(NVGcontext *ctx, const std::string &name, uint8_t *data, uint32_t size);
 
 inline double getTime() {
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return (double) tv.tv_sec  + (double) tv.tv_usec / 1000000.0;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double) tv.tv_sec  + (double) tv.tv_usec / 1000000.0;
 }
 
 NAMESPACE_END(nanogui)

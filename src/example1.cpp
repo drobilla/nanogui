@@ -141,7 +141,7 @@ private:
 
 class ExampleApplication : public nanogui::Screen {
 public:
-    ExampleApplication() : nanogui::Screen(Eigen::Vector2i(1024, 768), "NanoGUI Test") {
+    ExampleApplication() : nanogui::Screen(nanogui::Vector2i(1024, 768), "NanoGUI Test") {
         using namespace nanogui;
 
         Window *window = new Window(this, "Button demo");
@@ -356,7 +356,7 @@ public:
 
         graph->setHeader("E = 2.35e-3");
         graph->setFooter("Iteration 89");
-        VectorXf &func = graph->values();
+        std::vector<float> &func = graph->values();
         func.resize(100);
         for (int i = 0; i < 100; ++i)
             func[i] = 0.5f * (0.5f * std::sin(i / 10.f) +
@@ -378,7 +378,7 @@ public:
 
                 graphDyn->setHeader("E = 2.35e-3");
                 graphDyn->setFooter("Iteration " + to_string(index*counter));
-                VectorXf &funcDyn = graphDyn->values();
+                std::vector<float> &funcDyn = graphDyn->values();
                 funcDyn.resize(100);
                 for (int i = 0; i < 100; ++i)
                     funcDyn[i] = 0.5f *
@@ -519,7 +519,7 @@ public:
         /* All NanoGUI widgets are initialized at this point. Now
            create an OpenGL shader to draw the main window contents.
 
-           NanoGUI comes with a simple Eigen-based wrapper around OpenGL 3,
+           NanoGUI comes with a simple wrapper around OpenGL 3,
            which eliminates most of the tedious and error-prone shader and
            buffer object management.
         */
@@ -545,20 +545,19 @@ public:
             "}"
         );
 
-        MatrixXu indices(3, 2); /* Draw 2 triangles */
-        indices.col(0) << 0, 1, 2;
-        indices.col(1) << 2, 3, 0;
+        /* Draw 2 triangles */
+        Matrix<unsigned, 3, 2> indices(0, 2,
+                                       1, 3,
+                                       2, 0);
 
-        MatrixXf positions(3, 4);
-        positions.col(0) << -1, -1, 0;
-        positions.col(1) <<  1, -1, 0;
-        positions.col(2) <<  1,  1, 0;
-        positions.col(3) << -1,  1, 0;
+        Matrix<float, 3, 4> positions(-1,  1,  1, -1,
+                                      -1, -1,  1,  1,
+                                       0,  0,  0,  0);
 
         mShader.bind();
         mShader.uploadIndices(indices);
         mShader.uploadAttrib("position", positions);
-        mShader.setUniform("intensity", 0.5f);
+        mShader.setUniform("intensity", 1.0f);
     }
 
     ~ExampleApplication() {
@@ -577,7 +576,7 @@ public:
 
     virtual void draw(NVGcontext *ctx) {
         /* Animate the scrollbar */
-	    mProgress->setValue(std::fmod((float) nanogui::getTime() / 10, 1.0f));
+        mProgress->setValue(std::fmod((float) nanogui::getTime() / 10, 1.0f));
 
         /* Draw the user interface */
         Screen::draw(ctx);
@@ -591,9 +590,9 @@ public:
 
         Matrix4f mvp;
         mvp.setIdentity();
-        mvp.topLeftCorner<3,3>() = Matrix3f(Eigen::AngleAxisf((float) getTime(),  Vector3f::UnitZ())) * 0.25f;
+        // mvp.topLeftCorner<3,3>() = Matrix3f(Eigen::AngleAxisf((float) getTime(),  Vector3f::UnitZ())) * 0.25f;
 
-        mvp.row(0) *= (float) mSize.y() / (float) mSize.x();
+        // mvp.row<0>() *= (float) mSize.y() / (float) mSize.x();
 
         mShader.setUniform("modelViewProj", mvp);
 

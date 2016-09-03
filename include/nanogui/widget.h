@@ -335,8 +335,6 @@ protected:
      */
     float mIconExtraScale;
     Cursor mCursor;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

@@ -13,7 +13,6 @@
 #pragma once
 
 #include <nanogui/opengl.h>
-#include <Eigen/Geometry>
 #include <map>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -46,8 +45,6 @@ NAMESPACE_END(detail)
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
-using Eigen::Quaternionf;
-
 class GLUniformBuffer;
 
 //  ----------------------------------------------------
@@ -56,7 +53,7 @@ class GLUniformBuffer;
  * \class GLShader glutil.h nanogui/glutil.h
  *
  * Helper class for compiling and linking OpenGL shaders and uploading
- * associated vertex and index buffers from Eigen matrices.
+ * associated vertex and index buffers.
  */
 class NANOGUI_EXPORT GLShader {
 // this friendship breaks the documentation
@@ -152,7 +149,7 @@ public:
     /// Return the handle of a uniform attribute (-1 if it does not exist)
     GLint uniform(const std::string &name, bool warn = true) const;
 
-    /// Upload an Eigen matrix as a vertex buffer object (refreshing it as needed)
+    /// Upload a matrix as a vertex buffer object (refreshing it as needed)
     template <typename Matrix> void uploadAttrib(const std::string &name, const Matrix &M, int version = -1) {
         uint32_t compSize = sizeof(typename Matrix::Scalar);
         GLuint glType = (GLuint) detail::type_traits<typename Matrix::Scalar>::type;
@@ -162,7 +159,7 @@ public:
                      glType, integral, M.data(), version);
     }
 
-    /// Download a vertex buffer object into an Eigen matrix
+    /// Download a vertex buffer object into a matrix
     template <typename Matrix> void downloadAttrib(const std::string &name, Matrix &M) {
         uint32_t compSize = sizeof(typename Matrix::Scalar);
         GLuint glType = (GLuint) detail::type_traits<typename Matrix::Scalar>::type;
@@ -222,26 +219,14 @@ public:
 
     /// Initialize a uniform parameter with a 4x4 matrix (float)
     template <typename T>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 4, 4> &mat, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Matrix<T, 4, 4> &mat, bool warn = true) {
         glUniformMatrix4fv(uniform(name, warn), 1, GL_FALSE, mat.template cast<float>().data());
-    }
-
-    /// Initialize a uniform parameter with a 3x3 affine transform (float)
-    template <typename T>
-    void setUniform(const std::string &name, const Eigen::Transform<T, 3, 3> &affine, bool warn = true) {
-        glUniformMatrix4fv(uniform(name, warn), 1, GL_FALSE, affine.template cast<float>().data());
     }
 
     /// Initialize a uniform parameter with a 3x3 matrix (float)
     template <typename T>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 3, 3> &mat, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Matrix<T, 3, 3> &mat, bool warn = true) {
         glUniformMatrix3fv(uniform(name, warn), 1, GL_FALSE, mat.template cast<float>().data());
-    }
-
-    /// Initialize a uniform parameter with a 2x2 affine transform (float)
-    template <typename T>
-    void setUniform(const std::string &name, const Eigen::Transform<T, 2, 2> &affine, bool warn = true) {
-        glUniformMatrix3fv(uniform(name, warn), 1, GL_FALSE, affine.template cast<float>().data());
     }
 
     /// Initialize a uniform parameter with a boolean value
@@ -263,37 +248,37 @@ public:
 
     /// Initialize a uniform parameter with a 2D vector (int)
     template <typename T, typename std::enable_if<detail::type_traits<T>::integral == 1, int>::type = 0>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 2, 1>  &v, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Vector<T, 2> &v, bool warn = true) {
         glUniform2i(uniform(name, warn), (int) v.x(), (int) v.y());
     }
 
     /// Initialize a uniform parameter with a 2D vector (float)
     template <typename T, typename std::enable_if<detail::type_traits<T>::integral == 0, int>::type = 0>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 2, 1>  &v, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Vector<T, 2>  &v, bool warn = true) {
         glUniform2f(uniform(name, warn), (float) v.x(), (float) v.y());
     }
 
     /// Initialize a uniform parameter with a 3D vector (int)
     template <typename T, typename std::enable_if<detail::type_traits<T>::integral == 1, int>::type = 0>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 3, 1>  &v, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Vector<T, 3>  &v, bool warn = true) {
         glUniform3i(uniform(name, warn), (int) v.x(), (int) v.y(), (int) v.z());
     }
 
     /// Initialize a uniform parameter with a 3D vector (float)
     template <typename T, typename std::enable_if<detail::type_traits<T>::integral == 0, int>::type = 0>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 3, 1>  &v, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Vector<T, 3>  &v, bool warn = true) {
         glUniform3f(uniform(name, warn), (float) v.x(), (float) v.y(), (float) v.z());
     }
 
     /// Initialize a uniform parameter with a 4D vector (int)
     template <typename T, typename std::enable_if<detail::type_traits<T>::integral == 1, int>::type = 0>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 4, 1>  &v, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Vector<T, 4>  &v, bool warn = true) {
         glUniform4i(uniform(name, warn), (int) v.x(), (int) v.y(), (int) v.z(), (int) v.w());
     }
 
     /// Initialize a uniform parameter with a 4D vector (float)
     template <typename T, typename std::enable_if<detail::type_traits<T>::integral == 0, int>::type = 0>
-    void setUniform(const std::string &name, const Eigen::Matrix<T, 4, 1>  &v, bool warn = true) {
+    void setUniform(const std::string &name, const nanogui::Vector<T, 4>  &v, bool warn = true) {
         glUniform4f(uniform(name, warn), (float) v.x(), (float) v.y(), (float) v.z(), (float) v.w());
     }
 
@@ -447,7 +432,7 @@ public:
     }
 
     template <typename Derived, typename std::enable_if<Derived::IsVectorAtCompileTime, int>::type = 0>
-    void push_back(const Eigen::MatrixBase<Derived> &value) {
+    void push_back(const Derived &value) {
         const int n = (int) value.size();
         int i;
         for (i = 0; i < n; ++i)
@@ -458,7 +443,7 @@ public:
     }
 
     template <typename Derived, typename std::enable_if<!Derived::IsVectorAtCompileTime, int>::type = 0>
-    void push_back(const Eigen::MatrixBase<Derived> &value, bool colMajor = true) {
+    void push_back(const Derived &value, bool colMajor = true) {
         const int n = (int) (colMajor ? value.rows() : value.cols());
         const int m = (int) (colMajor ? value.cols() : value.rows());
         const int pad = n == 1 ? 1 : (n == 2 ? 2 : 4);
@@ -512,8 +497,6 @@ protected:
     GLuint mFramebuffer, mDepth, mColor;
     Vector2i mSize;
     int mSamples;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 //  ----------------------------------------------------
@@ -794,9 +777,6 @@ protected:
      * more slowly, higher values mean it rotates more quickly.
      */
     float mSpeedFactor;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 //  ----------------------------------------------------

@@ -106,9 +106,6 @@ protected:
 
     /// The current callback to execute when the color value has changed.
     std::function<void(const Color &)> mCallback;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

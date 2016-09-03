@@ -67,8 +67,6 @@ protected:
     Widget *mButtonPanel;
     bool mModal;
     bool mDrag;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

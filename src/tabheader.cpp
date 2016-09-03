@@ -14,6 +14,9 @@
 #include <nanogui/tabheader.h>
 #include <nanogui/theme.h>
 #include <nanogui/opengl.h>
+#include <nanogui/entypo.h>
+#include <algorithm>
+#include <cassert>
 #include <numeric>
 
 NAMESPACE_BEGIN(nanogui)

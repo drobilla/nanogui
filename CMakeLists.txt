@@ -93,9 +93,6 @@ if (MSVC)
 
   if (NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE2")
-
-    # Disable Eigen vectorization for Windows 32 bit builds (issues with unaligned access segfaults)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DNANOGUI_EIGEN_DONT_ALIGN")
   endif()
 endif()
 
@@ -209,20 +206,6 @@ list(APPEND NANOGUI_EXTRA_INCS
   "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanovg/src"
 )
 
-if (NOT NANOGUI_EIGEN_INCLUDE_DIR)
-  set(NANOGUI_EIGEN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ext/eigen")
-  list(APPEND NANOGUI_EXTRA_INCS "${NANOGUI_EIGEN_INCLUDE_DIR}")
-endif()
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "BSD")
-  include_directories(/usr/local/include)
-  link_directories(/usr/local/lib)
-  if(${CMAKE_SYSTEM_NAME} MATCHES "OpenBSD")
-    include_directories(/usr/X11R6/include/)
-    link_directories(/usr/X11R6/lib)
-  endif()
-endif()
-
 # Required core libraries on various platforms
 if (WIN32)
   list(APPEND NANOGUI_EXTRA_LIBS opengl32)
@@ -243,7 +226,7 @@ elseif(CMAKE_SYSTEM MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "BSD")
   endif()
 endif()
 
-include_directories(${NANOGUI_EIGEN_INCLUDE_DIR} ext/nanovg/src include ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(ext/nanovg/src include ${CMAKE_CURRENT_BINARY_DIR})
 
 
 # Run simple cmake converter to put font files into the data segment
@@ -335,7 +318,6 @@ add_library(nanogui-obj OBJECT
   include/nanogui/nanogui.h
   include/nanogui/serializer/core.h
   include/nanogui/serializer/opengl.h
-  include/nanogui/serializer/sparse.h
   src/serializer.cpp
 )
 

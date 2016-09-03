@@ -16,6 +16,9 @@
 #include <nanogui/opengl.h>
 #include <nanogui/window.h>
 #include <nanogui/popup.h>
+#include <nanogui/vector.h>
+#include <nanogui/matrix.h>
+#include <algorithm>
 #include <map>
 #include <iostream>
 
@@ -572,7 +575,7 @@ bool Screen::resizeCallbackEvent(int, int) {
     fbSize = size;
 
 #if defined(_WIN32) || defined(__linux__)
-    size /= mPixelRatio;
+    size = size / mPixelRatio;
 #endif
 
     if (fbSize == Vector2i(0, 0) || size == Vector2i(0, 0))

@@ -169,9 +169,6 @@ protected:
 
     /// The button group for radio buttons.
     std::vector<Button *> mButtonGroup;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

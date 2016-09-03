@@ -120,9 +120,6 @@ protected:
 
     /// The function to execute when \ref nanogui::CheckBox::mChecked is changed.
     std::function<void(bool)> mCallback;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

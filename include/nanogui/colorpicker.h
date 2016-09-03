@@ -119,9 +119,6 @@ protected:
      * \ref nanogui::ColorPicker::setResetButtonCaption if you need.
      */
     Button *mResetButton;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

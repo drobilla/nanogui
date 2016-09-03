@@ -15,6 +15,7 @@
 #include <nanogui/window.h>
 #include <nanogui/screen.h>
 #include <nanogui/theme.h>
+#include <cassert>
 #include <cmath>
 
 NAMESPACE_BEGIN(nanogui)
@@ -73,15 +74,12 @@ ImageView::ImageView(Widget* parent, GLuint imageID)
     mShader.init("ImageViewShader", defaultImageViewVertexShader,
                  defaultImageViewFragmentShader);
 
-    MatrixXu indices(3, 2);
-    indices.col(0) << 0, 1, 2;
-    indices.col(1) << 2, 3, 1;
+    const Matrix<unsigned, 3, 2> indices(0, 2,
+                                         1, 3,
+                                         2, 1);
 
-    MatrixXf vertices(2, 4);
-    vertices.col(0) << 0, 0;
-    vertices.col(1) << 1, 0;
-    vertices.col(2) << 0, 1;
-    vertices.col(3) << 1, 1;
+    const Matrix<float, 2, 4> vertices(0, 1, 0, 1,
+                                       0, 0, 1, 1);
 
     mShader.bind();
     mShader.uploadIndices(indices);

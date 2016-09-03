@@ -46,7 +46,7 @@ NAMESPACE_END(detail)
  * types using a compact binary file format. The intended purpose is to quickly
  * save and restore the complete state of an application, e.g. to facilitate
  * debugging sessions. This class supports all core C++ types, NanoGUI widgets,
- * sparse and dense Eigen matrices, as well as OpenGL shaders and buffer
+ * vectors and matrices, as well as OpenGL shaders and buffer
  * objects.
  *
  * Note that this header file just provides the basics; the files
@@ -293,9 +293,9 @@ template <typename T> struct serialization_helper<std::set<T>> {
     }
 };
 
-template <typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-struct serialization_helper<Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>> {
-    typedef Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols> Matrix;
+template <typename Scalar, int Rows, int Cols>
+struct serialization_helper<nanogui::Matrix<Scalar, Rows, Cols>> {
+    typedef nanogui::Matrix<Scalar, Rows, Cols> Matrix;
 
     static std::string type_id() {
         return "M" + serialization_helper<Scalar>::type_id();
@@ -303,7 +303,7 @@ struct serialization_helper<Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, 
 
     static void write(Serializer &s, const Matrix *value, size_t count) {
         for (size_t i = 0; i<count; ++i) {
-            uint32_t rows = value->rows(), cols = value->cols();
+            uint32_t rows = Rows, cols = Cols;
             s.write(&rows, sizeof(uint32_t));
             s.write(&cols, sizeof(uint32_t));
             serialization_helper<Scalar>::write(s, value->data(), rows*cols);
@@ -316,39 +316,47 @@ struct serialization_helper<Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, 
             uint32_t rows = 0, cols = 0;
             s.read(&rows, sizeof(uint32_t));
             s.read(&cols, sizeof(uint32_t));
-            value->resize(rows, cols);
+            if (rows != Rows || cols != Cols) {
+                throw std::runtime_error("Matrix size mismatch");
+            }
             serialization_helper<Scalar>::read(s, value->data(), rows*cols);
             value++;
         }
     }
 };
 
-template <> struct serialization_helper<nanogui::Color>
-    : public serialization_helper<Eigen::Matrix<float, 4, 1>> { };
-
-template <typename Scalar, int Options>
-struct serialization_helper<Eigen::Quaternion<Scalar, Options>>
-    : public serialization_helper<Eigen::Matrix<Scalar, 4, 1>> {
-    typedef Eigen::Quaternion<Scalar, Options> Quat;
+template <typename Scalar, int n>
+struct serialization_helper< nanogui::Vector<Scalar, n> > {
+    typedef nanogui::Vector<Scalar, n> Vector;
 
     static std::string type_id() {
-        return "Q" + serialization_helper<Scalar>::type_id();
+        return "A" + serialization_helper<Scalar>::type_id();
     }
 
-    static void write(Serializer &s, const Quat *value, size_t count) {
+    static void write(Serializer &s, const Vector *value, size_t count) {
         for (size_t i = 0; i<count; ++i) {
-            serialization_helper<Scalar>::write(s, value->coeffs().data(), 4);
+	        uint32_t elems = n;
+            s.write(&elems, sizeof(uint32_t));
+            serialization_helper<Scalar>::write(s, value->data(), elems);
             value++;
         }
     }
 
-    static void read(Serializer &s, Quat *value, size_t count) {
+    static void read(Serializer &s, Vector *value, size_t count) {
         for (size_t i = 0; i<count; ++i) {
-            serialization_helper<Scalar>::read(s, value->coeffs().data(), 4);
+	        uint32_t elems = 0;
+            s.read(&elems, sizeof(uint32_t));
+            if (elems != n) {
+                throw std::runtime_error("Vector size mismatch");
+            }
+            serialization_helper<Scalar>::read(s, value->data(), elems);
             value++;
         }
     }
 };
+
+template <> struct serialization_helper<nanogui::Color>
+    : public serialization_helper< nanogui::Vector<float, 4> > { };
 
 template <>
 struct serialization_helper<Widget> {

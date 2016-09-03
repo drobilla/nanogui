@@ -35,8 +35,6 @@ public:
     virtual bool load(Serializer &s) override;
 protected:
     float mValue;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

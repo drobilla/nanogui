@@ -15,8 +15,6 @@
 #include <nanogui/theme.h>
 #include <nanogui/opengl.h>
 #include <nanogui/serializer/core.h>
-#include <Eigen/QR>
-#include <Eigen/Geometry>
 
 NAMESPACE_BEGIN(nanogui)
 
@@ -160,6 +158,31 @@ bool ColorWheel::mouseDragEvent(const Vector2i &p, const Vector2i &,
     return adjustPosition(p, mDragRegion) != None;
 }
 
+// Convert p to barycentric coordinates with respect to triangle (a, b, c)
+template<typename T, int D>
+inline Vector<T, 3>
+cartToBary(const Vector<T, D>& a,
+           const Vector<T, D>& b,
+           const Vector<T, D>& c,
+           const Vector<T, D>& p) {
+    const Vector<T, D> v0 = a - c;
+    const Vector<T, D> v1 = b - c;
+    const Vector<T, D> v2 = p - c;
+
+    const T d00   = v0.dot(v0);
+    const T d01   = v0.dot(v1);
+    const T d11   = v1.dot(v1);
+    const T d20   = v2.dot(v0);
+    const T d21   = v2.dot(v1);
+    const T denom = d00 * d11 - d01 * d01;
+
+    const T v = (d11 * d20 - d01 * d21) / denom;
+    const T w = (d00 * d21 - d01 * d20) / denom;
+    const T u = 1.0f - v - w;
+
+    return Vector<T, 3>(v, w, u);
+}
+
 ColorWheel::Region ColorWheel::adjustPosition(const Vector2i &p, Region consideredRegions) {
     float x = p.x() - mPos.x(),
           y = p.y() - mPos.y(),
@@ -191,6 +214,10 @@ ColorWheel::Region ColorWheel::adjustPosition(const Vector2i &p, Region consider
         return OuterCircle;
     }
 
+    if (!(consideredRegions & InnerTriangle)) {
+        return None;
+    }
+
     float r = r0 - 6;
 
     float ax = std::cos( 120.0f/180.0f*NVG_PI) * r;
@@ -198,41 +225,26 @@ ColorWheel::Region ColorWheel::adjustPosition(const Vector2i &p, Region consider
     float bx = std::cos(-120.0f/180.0f*NVG_PI) * r;
     float by = std::sin(-120.0f/180.0f*NVG_PI) * r;
 
-    typedef Eigen::Matrix<float,2,2>        Matrix2f;
+    // Calculate rotated triangle coordinates
+    const Matrix<float, 2, 3> triangle =
+        Rotation2D<float>(mHue * 2 * NVG_PI).matrix() *
+        Matrix<float, 2, 3>(ax, bx, r, ay, by, 0);
 
-    Eigen::Matrix<float, 2, 3> triangle;
-    triangle << ax,bx,r,
-                ay,by,0;
-    triangle = Eigen::Rotation2D<float>(mHue * 2 * NVG_PI).matrix() * triangle;
-
-    Matrix2f T;
-    T << triangle(0,0) - triangle(0,2), triangle(0,1) - triangle(0,2),
-         triangle(1,0) - triangle(1,2), triangle(1,1) - triangle(1,2);
-    Vector2f pos { x - triangle(0,2), y - triangle(1,2) };
-
-    Vector2f bary = T.colPivHouseholderQr().solve(pos);
-    float l0 = bary[0], l1 = bary[1], l2 = 1 - l0 - l1;
-    bool triangleTest = l0 >= 0 && l0 <= 1.f && l1 >= 0.f && l1 <= 1.f &&
-                        l2 >= 0.f && l2 <= 1.f;
-
-    if ((consideredRegions & InnerTriangle) &&
-        (triangleTest || consideredRegions == InnerTriangle)) {
-        if (!(consideredRegions & InnerTriangle))
-            return None;
-        l0 = std::min(std::max(0.f, l0), 1.f);
-        l1 = std::min(std::max(0.f, l1), 1.f);
-        l2 = std::min(std::max(0.f, l2), 1.f);
-        float sum = l0 + l1 + l2;
-        l0 /= sum;
-        l1 /= sum;
-        mWhite = l0;
-        mBlack = l1;
-        if (mCallback)
-            mCallback(color());
-        return InnerTriangle;
+    // Convert point to barycentric coordinates relative to rotated triangle
+    const Vector3f bary = cartToBary(triangle.col(0), triangle.col(1), triangle.col(2), {x, y});
+    if (bary[0] < 0 || bary[1] < 0 || bary[2] < 0) {
+        return None;  // Point is outside triangle
     }
 
-    return None;
+    // Store how close point is to white and black vertices
+    mWhite = bary[0];
+    mBlack = bary[1];
+
+    if (mCallback) {
+        mCallback(color());
+    }
+
+    return InnerTriangle;
 }
 
 Color ColorWheel::hue2rgb(float h) const {
@@ -290,15 +302,17 @@ void ColorWheel::setColor(const Color &rgb) {
 
         mHue = h;
 
-        Eigen::Matrix<float, 4, 3> M;
-        M.topLeftCorner<3, 1>() = hue2rgb(h).head<3>();
-        M(3, 0) = 1.;
-        M.col(1) = Vector4f{ 0., 0., 0., 1. };
-        M.col(2) = Vector4f{ 1., 1., 1., 1. };
+        // Conceptually make a 4D triangle with vertices for black, white, and
+        // the maximum RGB value with the same hue as the new color
+        const Vector4f black(0.0f, 0.0f, 0.0f, 1.0f);
+        const Vector4f white(1.0f, 1.0f, 1.0f, 1.0f);
+        const Vector4f fullrgb = hue2rgb(h);
 
-        Vector4f rgb4{ rgb[0], rgb[1], rgb[2], 1. };
-        Vector3f bary = M.colPivHouseholderQr().solve(rgb4);
+        // Convert the new color to barycentric coordinates relative to it
+        const Vector4f opaque{rgb[0], rgb[1], rgb[2], 1.0f};
+        const Vector3f bary = cartToBary(fullrgb, black, white, opaque);
 
+        // Store barycentric coordinates for black and white vertices
         mBlack = bary[1];
         mWhite = bary[2];
     }

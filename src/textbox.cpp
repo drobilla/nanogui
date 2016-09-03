@@ -515,15 +515,15 @@ bool TextBox::checkFormat(const std::string &input, const std::string &format) {
 
 bool TextBox::copySelection() {
     if (mSelectionPos > -1) {
-        Screen *sc = dynamic_cast<Screen *>(this->window()->parent());
-        if (!sc)
-            return false;
+        // Screen *sc = dynamic_cast<Screen *>(this->window()->parent());
+        // if (!sc)
+        //     return false;
 
-        int begin = mCursorPos;
-        int end = mSelectionPos;
+        // int begin = mCursorPos;
+        // int end = mSelectionPos;
 
-        if (begin > end)
-            std::swap(begin, end);
+        // if (begin > end)
+        //     std::swap(begin, end);
 
         // glfwSetClipboardString(sc->glfwWindow(),
         //                        mValueTemp.substr(begin, end).c_str());

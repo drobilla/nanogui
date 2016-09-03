@@ -16,6 +16,8 @@
 #endif
 
 #include <nanogui/opengl.h>
+#include <algorithm>
+#include <cstring>
 #include <map>
 #include <thread>
 #include <chrono>

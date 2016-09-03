@@ -41,7 +41,7 @@ struct serialization_helper<GLShader> {
                 s.set("dim", buf.dim);
                 s.set("size", buf.size);
                 s.set("version", buf.version);
-                Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic> temp(1, totalSize);
+                std::vector<uint8_t> temp(totalSize);
 
                 if (item.first == "indices") {
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf.id);
@@ -80,7 +80,7 @@ struct serialization_helper<GLShader> {
                     value->mBufferObjects[key].id = bufferID;
                 }
                 GLShader::Buffer &buf = value->mBufferObjects[key];
-                Eigen::Matrix<uint8_t, Eigen::Dynamic, Eigen::Dynamic> data;
+                std::vector<uint8_t> data;
 
                 s.push(key);
                 s.get("glType", buf.glType);

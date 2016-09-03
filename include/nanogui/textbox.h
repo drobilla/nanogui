@@ -16,7 +16,7 @@
 #pragma once
 
 #include <nanogui/widget.h>
-#include <cstdio>
+#include <limits>
 #include <sstream>
 
 NAMESPACE_BEGIN(nanogui)
@@ -132,8 +132,6 @@ protected:
     int mMouseDownModifier;
     float mTextOffset;
     double mLastClick;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /**
@@ -245,8 +243,6 @@ private:
     Scalar mMouseDownValue;
     Scalar mValueIncrement;
     Scalar mMinValue, mMaxValue;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /**
@@ -359,8 +355,6 @@ private:
     Scalar mMouseDownValue;
     Scalar mValueIncrement;
     Scalar mMinValue, mMaxValue;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

@@ -347,8 +347,6 @@ protected:
 
     /// The margin around this GridLayout.
     int mMargin;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 /**

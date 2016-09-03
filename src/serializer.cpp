@@ -1,4 +1,5 @@
 #include <nanogui/serializer/core.h>
+#include <cstring>
 #include <iostream>
 
 NAMESPACE_BEGIN(nanogui)

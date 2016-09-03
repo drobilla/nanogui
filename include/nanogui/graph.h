@@ -43,9 +43,9 @@ public:
     const Color &textColor() const { return mTextColor; }
     void setTextColor(const Color &textColor) { mTextColor = textColor; }
 
-    const VectorXf &values() const { return mValues; }
-    VectorXf &values() { return mValues; }
-    void setValues(const VectorXf &values) { mValues = values; }
+    const std::vector<float> &values() const { return mValues; }
+    std::vector<float> &values() { return mValues; }
+    void setValues(const std::vector<float> &values) { mValues = values; }
 
     virtual Vector2i preferredSize(NVGcontext *ctx) const override;
     virtual void draw(NVGcontext *ctx) override;
@@ -55,9 +55,7 @@ public:
 protected:
     std::string mCaption, mHeader, mFooter;
     Color mBackgroundColor, mForegroundColor, mTextColor;
-    VectorXf mValues;
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    std::vector<float> mValues;
 };
 
 NAMESPACE_END(nanogui)

@@ -29,8 +29,6 @@ public:
         setFlags(Flags::RadioButton | Flags::ToggleButton);
         setFixedSize(Vector2i(25, 25));
     }
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)

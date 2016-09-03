@@ -83,9 +83,6 @@ protected:
 
     /// The current index this ComboBox has selected.
     int mSelectedIndex;
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 NAMESPACE_END(nanogui)
