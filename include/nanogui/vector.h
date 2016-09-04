@@ -246,6 +246,8 @@ public:
 		return out;
 	}
 
+	static int size() { return n; }
+
 	const T* data() const { return mElems; }
 	T*       data()       { return mElems; }
 

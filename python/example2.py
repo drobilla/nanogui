@@ -78,7 +78,7 @@ screen.setVisible(True)
 screen.performLayout()
 window.center()
 
-nanogui.mainloop()
+nanogui.mainloop(screen)
 screen = gui = window = None
 gc.collect()
 nanogui.shutdown()

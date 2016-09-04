@@ -21,7 +21,7 @@ from nanogui import Color, ColorPicker, Screen, Window, GroupLayout, BoxLayout, 
                     TextBox, ColorWheel, Graph, GridLayout, \
                     Alignment, Orientation, TabWidget, IntBox, GLShader
 
-from nanogui import gl, glfw, entypo
+from nanogui import pugl, glfw, entypo
 
 # A simple counter, used for dynamic tab creation with TabWidget callback
 counter = 1
@@ -444,7 +444,7 @@ class TestApp(Screen):
         if super(TestApp, self).keyboardEvent(key, scancode,
                                               action, modifiers):
             return True
-        if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
+        if key == pugl.CHAR_ESCAPE and action == 1:
             self.setVisible(False)
             return True
         return False
@@ -454,7 +454,6 @@ if __name__ == "__main__":
     test = TestApp()
     test.drawAll()
     test.setVisible(True)
-    nanogui.mainloop()
-    del test
+    nanogui.mainloop(test)
     gc.collect()
     nanogui.shutdown()
