@@ -19,6 +19,8 @@
 #include <nanogui/opengl.h>
 #include <nanogui/serializer/core.h>
 
+#include <assert.h>
+
 NAMESPACE_BEGIN(nanogui)
 
 GLCanvas::GLCanvas(Widget *parent)
