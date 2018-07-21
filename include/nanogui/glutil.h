@@ -501,6 +501,7 @@ protected:
 
 //  ----------------------------------------------------
 
+#if 0
 /**
  * \struct Arcball glutil.h nanogui/glutil.h
  *
@@ -778,6 +779,7 @@ protected:
      */
     float mSpeedFactor;
 };
+#endif
 
 //  ----------------------------------------------------
 
